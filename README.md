@@ -11,5 +11,6 @@ The consul cluster contains two consul servers in separate DCs (dc1 and dc2) and
 
 Remark: For this setup, I used default VPC, Subnet etc. AWS HC account settings, as well as Mac M1 with terraform v0.13.7 installed. The scripts and steps implemented above are being tested manually [by building infra using AWS console and final testing via TF](https://hashicorp.atlassian.net/wiki/spaces/GEOR/pages/2323157862/Spun+up+AWS+instance+via+AWS+Management+Console). 
 
+![Sample diagram](https://user-images.githubusercontent.com/100287834/160795699-15ca5577-8953-4f57-a4bc-c2fdabe9c7d1.png)
 
-![Sample Diagram](https://prnt.sc/c6FEgWTuq8cO)
+
