@@ -23,9 +23,9 @@ What?
 How?
 - Download/clone [this git repo files](https://github.com/georgitsvetkov/consul-cluster.git) on your machine
 - Open your machine CLI console and navigate to the location where you've downloaded the repo `cd ./<repo location>`
-- Initiate `terraform init`, followed by `terraform plan` and `terraform apply`
+- Initiate `terraform init`, followed by `terraform plan`, `terraform apply` and `yes`
 - You will see terraform deploying resources and creating `terraform-key-pair.pem` in that same location that you've downloaded the repo and initiated terraform
-- As a successfull TF deployment, you should get an output, `SSH_Connection_Client_DC1` and `SSH_Connection_Client_DC2`, which has the SSH login commands containig .pem private key, instance uname and public ip `sudo ssh -i terraform-key-pair.pem ubuntu@<public_ip>`
+- As a successfull TF deployment, you should get an output, `SSH_Connection_Client_DC1` and `SSH_Connection_Client_DC2`, which has the SSH login commands containig .pem private key, instance uname and public ip `sudo ssh -i terraform-key-pair.pem ubuntu@<public_ip>`. Please note that terraform-key-pair.pem should be in the same location/folder, otherwise you might need to specify path to the key.
 - Once logged in to the EC2 consul client dc1/2 instance, verify that consul members are there `consul members` (you should see one consul server and one client in each respective dc1/2)
 - In order to test that consul_client_dc1 is able to communicate with consul_client_dc2, use consul KV, as follows:
 consul_client_dc1 - set KV on consul_client_dc1 to 5 and verify that is being recorded:
@@ -39,5 +39,10 @@ consul kv put -datacenter=dc1 config/redis/maxconns 10
 consul kv get -datacenter=dc1 config/redis/maxconns
 ```
 
-Note: Consul cluster runs `consul-enterprise=1.8.3+ent`, which is not licensed and it will drop some time after the consul cluster is being spun up. In case of systemctl consul exit, you can use `sudo systemctl status consul` to check the consul process status, followed by `sudo systemctl start consul`, which should bring consul process back and re-initiate all client/server memberships
+Note: Consul cluster runs `consul-enterprise=1.8.3+ent`, which is not licensed at the moment and it will drop some time after the consul cluster is being spun up. In case of systemctl consul exit, you can use `sudo systemctl status consul` to check the consul process status, followed by `sudo systemctl start consul`, which should bring consul process back and re-initiate all client/server memberships
+- When ready with the lab, ensure that you detroy the whole infra that you've created for a test, in order to save resources:
+```
+terraform init
+terraform destroy -> yes
+```
 
