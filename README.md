@@ -39,5 +39,5 @@ consul kv put -datacenter=dc1 config/redis/maxconns 10
 consul kv get -datacenter=dc1 config/redis/maxconns
 ```
 
-
+Note: Consul cluster runs `consul-enterprise=1.8.3+ent`, which is not licensed and it will drop some time after the consul cluster is being spun up. In case of systemctl consul exit, you can use `sudo systemctl status consul` to check the consul process status, followed by `sudo systemctl start consul`, which should bring consul process back and re-initiate all client/server memberships
 
