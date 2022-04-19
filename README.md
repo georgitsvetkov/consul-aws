@@ -39,7 +39,7 @@ Sample output:
 aws_key_pair.generated_key: Creation complete after 0s [id=terraform-key-pair]
 ```
 
-At a successfull TF deployment, you should get an output, `SSH_Connection_Client_DC1` and `SSH_Connection_Client_DC2`, which has the SSH login commands containig .pem private key
+At a successfull TF deployment, you should get an output, `SSH_Connection_Client/Server_DC1` and `SSH_Connection_Client/Server_DC2`, which has the SSH login commands containig .pem private key
 ```
 aws_instance.consul_server_dc1: Creation complete after 43s [id=i-0148e4a2eaf6f5b03]
 
@@ -56,35 +56,28 @@ In order to login to the consul_client_dc1/2, use the output from the commands a
 sudo ssh -i terraform-key-pair.pem ubuntu@<public_ip>
 ```
 
-Verify that consul members are there (you should see one consul server and one client in each respective dc1/2)
+Verify that consul members, consul services and consul service checks are there (you should see one consul server and one client in each respective dc1/2)
 ```
 consul members
+consul catalog services
+curl -X GET 'localhost:8500/v1/health/state/:state'
 ```
 
-Verify that consul_client_dc1 is able to communicate with consul_client_dc2, use consul KV:
+Verify that services are up and running using Consul UI:
 
-- Connect to consul_client_dc1 - set KV on consul_client_dc1 to 5 and verify that is being recorded
-Sample output:
+- Connect to the Consul Server DC1 using Terminal and make a port redirect to localhost, using the public ip of the EC2 instance of the consul server DC1:
 ```
-ubuntu@ip-172-31-35-73:~$ consul kv put config/redis/maxconns 5
-Success! Data written to: config/redis/maxconns
-ubuntu@ip-172-31-35-73:~$
-ubuntu@ip-172-31-35-73:~$
-ubuntu@ip-172-31-35-73:~$ consul kv get config/redis/maxconns
-5
-ubuntu@ip-172-31-35-73:~$
-```
-- Connect to consul_client_dc2 - check current KV on consul_client_dc1, change KV on consul_client_dc1 from 5 to 10 and verify that the change is being successfull
-Sample output:
-```
-ubuntu@ip-172-31-40-104:~$ consul kv put -datacenter=dc1 config/redis/maxconns 10
-Success! Data written to: config/redis/maxconns
-ubuntu@ip-172-31-40-104:~$ consul kv get -datacenter=dc1 config/redis/maxconns
-10
-ubuntu@ip-172-31-40-104:~$
+ssh -R 127.0.0.1:8500:127.0.0.1:8500 ubuntu@<Consul_ServerDC1_EC2_PUBLIC_IP> -i "terraform-key-pair"
 ```
 
-Once done, ensure that you detroy the whole infra that you've created for a test, in order to save resources:
+- Connect to Consul UI, using your browser:
+```
+http://<Consul_ServerDC1_EC2_PUBLIC_IP>:8500/ui/
+```
+
+- Navigate to "Services" tab and ensure that counting service checks are passing successfully
+
+Once done, ensure that you detroy the whole infra that you've created for a test:
 ```
 terraform init
 terraform destroy -> yes
@@ -92,4 +85,4 @@ terraform destroy -> yes
 
 Remark: For this setup, I used default VPC, Subnet etc. AWS HC account settings, as well as Mac M1 with terraform v0.13.7 installed. The scripts and steps implemented above are being tested manually [by building infra using AWS console and final testing via TF](https://hashicorp.atlassian.net/wiki/spaces/GEOR/pages/2323157862/Spun+up+AWS+instance+via+AWS+Management+Console).
 
-Note: Consul cluster runs `consul-enterprise=1.8.3+ent`, which is not licensed at the moment and it will drop some time after the consul is being spun up. In case of systemctl consul exit, you can use `sudo systemctl status consul` to check the consul process status, followed by `sudo systemctl start consul`, which should bring consul process back and re-initiate all client/server memberships.
+
